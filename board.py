@@ -107,8 +107,11 @@ class Board:
         self.testp = pg.image.load("imgs/pieces.png")
         self.squares = []
         self.legal = []
+
         for i in range(64):
             self.legal.append(None)
+
+        #add pieces
         self.squares.append(BRook())
         self.squares.append(BKnight())
         self.squares.append(BBishop())
@@ -160,7 +163,10 @@ class Board:
             else:
                 break
             y -= 1
-        return p
+
+
+
+
 
     def vertical_move(self, p, x):
         y = x + 8
@@ -187,7 +193,24 @@ class Board:
             else:
                 break
             y -= 8
-        return p
+
+    def pawn_moves(self, p, x):
+        m = 1
+        if isinstance(p, WPiece):
+            test = BPiece
+            m = -1
+        else:
+            test = WPiece
+        if x+8*m <= 63 and self.squares[x+8*m] == None:
+            p.legal_moves.append(x+8*m)
+        if x+9*m <= 63 and x % 8 != 7 and isinstance(self.squares[x+9*m], test):
+            p.legal_moves.append(x+9*m)
+        if x+7*m <= 63 and x % 8 != 0 and isinstance(self.squares[x+7*m], test):
+            p.legal_moves.append(x+7*m)
+        if p.FirstMove and x+16*m <= 63 and self.squares[x+16*m] == None:
+            p.legal_moves.append(x+16*m)
+
+
     def jump_moves(self, p, pos):
         if isinstance(p, WPiece):
             test = BPiece
@@ -200,35 +223,90 @@ class Board:
         for pos in arr:
             if 0 <= pos[0] < 8 and 0 <= pos[1] < 8 and (isinstance(self.squares[pos[1]*8+pos[0]],test) or self.squares[pos[1]*8+pos[0]] == None):
                 p.legal_moves.append(pos[1]*8+pos[0])
-        return p
+
+    def check_direction(self, p, test, pos, dir):
+        x = pos % 8
+        y = pos // 8
+        m = 1
+        if dir < 0:
+            m = -1
+        tmp = pos + dir
+        if dir == 9:
+            x += 1
+            y += 1
+        elif dir == -9:
+            y -= 1
+            x -= 1
+        elif dir == 7:
+            x -= 1
+            y += 1
+        elif dir == -7:
+            x += 1
+            y -= 1
+        while (tmp <= 63 and tmp >= 0 and x >= 0 and x <= 7 and y >= 0 and y <= 7):
+            if self.squares[tmp] == None:
+                p.legal_moves.append(tmp)
+            elif isinstance(self.squares[tmp], test):
+                p.legal_moves.append(tmp)
+                break
+            else:
+                break
+            if dir == 9:
+                x += 1
+                y += 1
+            elif dir == -9:
+                y -= 1
+                x -= 1
+            elif dir == 7:
+                x -= 1
+                y += 1
+            elif dir == -7:
+                x += 1
+                y -= 1
+
+            tmp += dir
+
+
+            
+    def diagonal_moves(self, p, pos):
+        if isinstance(p, WPiece):
+            test = BPiece
+        else:
+            test = WPiece
+        self.check_direction(p, test, pos, 9)
+        self.check_direction(p, test, pos, -9)
+        self.check_direction(p, test, pos, 7)
+        self.check_direction(p, test, pos, -7)
+
+    def king_moves(self, p , pos):
+        if isinstance(p, WPiece):
+            test = BPiece
+        else:
+            test = WPiece
+
+
     def legal_moves(self):
-        x = 0
+        x = 0  #x is the postion in the list squares
         for p in self.squares:
-            if isinstance(p, WPawn):
-                if self.WTurn:
-                    if x-8 >= 0 and self.squares[x-8] == None:
-                        p.legal_moves.append(x-8)
-                    if x-9 >= 0 and x % 8 != 7 and isinstance(self.squares[x-9], Piece):
-                        p.legal_moves.append(x-9)
-                    if x-7 >= 0 and x % 8 != 0 and isinstance(self.squares[x-7], Piece):
-                        p.legal_moves.append(x-7)
-                    if p.FirstMove and x-16 >= 0 and self.squares[x-16] == None:
-                        p.legal_moves.append(x-16)
-            if isinstance(p, WRook) or isinstance(p, BRook):
-                p = self.horizontal_move(p, x)
-                p = self.vertical_move(p,x)
+            if isinstance(p, WPawn) or isinstance(p, BPawn):
+                self.pawn_moves(p, x)
             if isinstance(p, BKnight) or isinstance(p, WKnight):
-                p = self.jump_moves(p, x)
-            if isinstance(p, BPawn):
-                if not self.WTurn:
-                    if x+8 <= 63 and self.squares[x+8] == None:
-                        p.legal_moves.append(x+8)
-                    if x+9 <= 63 and x % 8 != 7 and isinstance(self.squares[x+9], Piece):
-                        p.legal_moves.append(x+9)
-                    if x+7 <= 63 and x % 8 != 0 and isinstance(self.squares[x+7], Piece):
-                        p.legal_moves.append(x+7)
-                    if p.FirstMove and x+16 <= 63 and self.squares[x+16] == None:
-                        p.legal_moves.append(x+16)
+                self.jump_moves(p, x)
+            if isinstance(p, WBishop) or isinstance(p, BBishop):
+                self.diagonal_moves(p,x)
+            if isinstance(p, WRook) or isinstance(p, BRook):
+                self.horizontal_move(p, x)
+                self.vertical_move(p,x)
+            if isinstance(p, WQueen) or isinstance(p, BQueen):
+                self.horizontal_move(p, x)
+                self.vertical_move(p,x)
+                self.diagonal_moves(p,x)
+            if isinstance(p, WRook) or isinstance(p, BRook):
+                self.horizontal_move(p, x)
+                self.vertical_move(p,x)
+            if isinstance(p, WKing) or isinstance(p, BKing):
+                pass
+                #self.king_moves(p,x)
             x += 1
 
     def free_moves(self):
