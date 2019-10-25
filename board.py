@@ -207,7 +207,7 @@ class Board:
             p.legal_moves.append(x+9*m)
         if x+7*m <= 63 and x % 8 != 0 and isinstance(self.squares[x+7*m], test):
             p.legal_moves.append(x+7*m)
-        if p.FirstMove and x+16*m <= 63 and self.squares[x+16*m] == None:
+        if p.FirstMove and x+16*m <= 63 and self.squares[x+8*m] == None and self.squares[x+16*m] == None:
             p.legal_moves.append(x+16*m)
 
 
@@ -223,6 +223,24 @@ class Board:
         for pos in arr:
             if 0 <= pos[0] < 8 and 0 <= pos[1] < 8 and (isinstance(self.squares[pos[1]*8+pos[0]],test) or self.squares[pos[1]*8+pos[0]] == None):
                 p.legal_moves.append(pos[1]*8+pos[0])
+    def is_pinned(self,p, pos):
+        if isinstance(p, WPiece):
+            test = BKing
+        else:
+            test = WKing
+        x = pos % 8
+        y = pos // 8
+        arr = []
+        while (x <= 6):
+            arr.append(pos+1)
+            x += 1
+
+        #1. find if king is alined -> find if checking piece is alined
+        #horizontal pin
+
+        #vertical pin
+        #diagonal pin
+        p.legal_moves = []
 
     def check_direction(self, p, test, pos, dir):
         x = pos % 8
@@ -267,7 +285,7 @@ class Board:
             tmp += dir
 
 
-            
+
     def diagonal_moves(self, p, pos):
         if isinstance(p, WPiece):
             test = BPiece
@@ -283,6 +301,13 @@ class Board:
             test = BPiece
         else:
             test = WPiece
+        x = pos % 8
+        y = pos // 8
+
+        arr = [(x, y-1),(x+1, y-1),(x+1,y),(x+1,y+1),(x,y+1),(x-1,y+1),(x-1,y),(x-1,y-1)]
+        for pos in arr:
+            if 0 <= pos[0] < 8 and 0 <= pos[1] < 8 and (isinstance(self.squares[pos[1]*8+pos[0]],test) or self.squares[pos[1]*8+pos[0]] == None):
+                p.legal_moves.append(pos[1]*8+pos[0])
 
 
     def legal_moves(self):
@@ -305,8 +330,7 @@ class Board:
                 self.horizontal_move(p, x)
                 self.vertical_move(p,x)
             if isinstance(p, WKing) or isinstance(p, BKing):
-                pass
-                #self.king_moves(p,x)
+                self.king_moves(p,x)
             x += 1
 
     def free_moves(self):
