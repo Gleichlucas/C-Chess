@@ -113,13 +113,7 @@ class Board:
                 p.legal_moves.append(pos[1]*8+pos[0])
 
 
-    def check_for_pinning_piece_h(self, killer, pos, dir):
-        if killer == 1:
-            test = BRook
-            test2 = BQueen
-        else:
-            test = WRook
-            test2 = WQueen
+    def check_for_pinning_piece_h(self, king_colour, pos, dir):
         pinned = False
         tmp = pos
         tmp += dir
@@ -128,14 +122,14 @@ class Board:
             if self.squares[tmp] == None:
                 tmp += dir
                 continue
-            if isinstance(self.squares[tmp], test) or isinstance(self.squares[tmp], test2):
+            if isinstance(self.squares[tmp], Rook) or isinstance(self.squares[tmp], Queen) and self.squares[tmp].colour != king_colour:
                 pinned = True
                 break
             else:
                 break
         if not pinned:
             return
-        print(str(self.squares[pos]) + " is horizontal pinned")
+        print(str(type(self.squares[pos])) + " on "+ str(pos//8 +1)+ ","+str(pos%8 + 1) + " is horizontal pinned")
         self.squares[pos].legal_moves[:] = [x for x in self.squares[pos].legal_moves if x // 8 == pos // 8]
 
     def check_for_pinning_piece_v(self, king_colour, pos, dir):
@@ -149,7 +143,7 @@ class Board:
             if self.squares[tmp] == None:
                 tmp += dir
                 continue
-            if (isinstance(self.squares[tmp], Rook) or isinstance(self.squares[tmp], Queen)) and self.squares[tmp] != king_colour:
+            if (isinstance(self.squares[tmp], Rook) or isinstance(self.squares[tmp], Queen)) and self.squares[tmp].colour != king_colour:
                 pinned = True
                 break
             else:
@@ -157,20 +151,13 @@ class Board:
 
         if not pinned:
             return
-        print(str(self.squares[pos]) + " is vertical pinned")
+        print("king colour is " + str(king_colour))
+        print(str(type(self.squares[pos])) + " on "+ str(pos//8 +1)+ ","+str(pos%8 + 1) + " is vertical pinned")
         self.squares[pos].legal_moves[:] = [x for x in self.squares[pos].legal_moves if x % 8 == pos % 8]
 
 
     def check_horizontal_pin(self,p, pos):
         # looking for the first horizontal piece of the same colour as the king that might be pinned
-        if isinstance(p, WKing):
-            test = WPiece
-            killer = 1
-        else:
-            test = BPiece
-            killer = -1
-
-
         tmp = pos + 1
         while(tmp % 8 <= 7):
             # this loop will break after it finds the first piece, if its of same colour it will check if its pinned
@@ -188,27 +175,20 @@ class Board:
             if self.squares[tmp] == None:
                 tmp -=1
                 continue
-            if isinstance(self.squares[tmp], test):
+            if self.squares[tmp].colour == p.colour:
                 self.check_for_pinning_piece_h(p.colour,tmp, -1)
                 break
             else:
                 break
 
     def check_vertical_pin(self,p, pos):
-        if isinstance(p, WKing):
-            test = WPiece
-            killer = 1
-        else:
-            test = BPiece
-            killer = -1
-
         tmp = pos + 8
         while(tmp // 8 <= 7):
             if self.squares[tmp] == None:
                 tmp +=8
                 continue
-            if isinstance(self.squares[tmp], test):
-                self.check_for_pinning_piece_v(killer, tmp, 8)
+            if self.squares[tmp].colour == p.colour:
+                self.check_for_pinning_piece_v(p.colour, tmp, 8)
                 break
             else:
                 break
@@ -218,8 +198,8 @@ class Board:
             if self.squares[tmp] == None:
                 tmp -= 8
                 continue
-            if isinstance(self.squares[tmp], test):
-                self.check_for_pinning_piece_v(killer,tmp, -8)
+            if self.squares[tmp].colour == p.colour:
+                self.check_for_pinning_piece_v(p.colour,tmp, -8)
                 break
             else:
                 break
@@ -308,8 +288,8 @@ class Board:
                 self.vertical_move(p,x)
             if isinstance(p, King):
                 self.king_moves(p,x)
-                #self.check_horizontal_pin(p,x)
-                #self.check_vertical_pin(p,x)
+                self.check_horizontal_pin(p,x)
+                self.check_vertical_pin(p,x)
             x += 1
 
     def free_moves(self):
