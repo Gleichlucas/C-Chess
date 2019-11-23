@@ -1,7 +1,7 @@
 import pygame as pg
 import time
-from board import Board,WPawn,BPawn,Legal
-
+from board import Board
+from piece import Legal
 H1 = 28
 def setup():
     #background = pg.image.load("imgs/board.png")
