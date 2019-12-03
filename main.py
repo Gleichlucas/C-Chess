@@ -25,11 +25,6 @@ def draw(screen, board,m_piece , mx, my):
             x+=1
     if m_piece != None:
         screen.blit(m_piece.image,(mx-37, my-37))
-
-
-
-     #screen.blit(pawn.image, (20, 20))
-     #screen.blit(board.testp, (0, 0), pg.Rect((0,0), (664/8, 215/2)))
     pg.display.flip()
 
 def pixel_to_array(x,y):
@@ -50,28 +45,30 @@ def main():
 
         s = time.perf_counter()
         mx,my = pg.mouse.get_pos()
+        arr_pos = pixel_to_array(mx,my)
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
             if event.type == pg.MOUSEBUTTONDOWN:
                 if m_piece:
-                    if pixel_to_array(mx,my) != None:
+                    if arr_pos != None:
                         m_piece.FirstMove = False
-                        board.squares[pixel_to_array(mx,my)] = m_piece
+                        board.squares[arr_pos] = m_piece
                         board.free_moves()
                         m_piece = None
 
                 else:
-                    if pixel_to_array(mx,my) != None:
-                        board.legal_moves()
+                    if arr_pos != None:
+                        #board.legal_moves()
                         if board.WTurn == True:
                             board.WTurn = False
                         else:
                             board.WTurn = True
-                        m_piece = board.squares[pixel_to_array(mx,my)]
+                        m_piece = board.squares[arr_pos]
+                        m_piece.move(arr_pos, board.squares)
                         for x in m_piece.legal_moves:
                             board.legal[x] = Legal()
-                        board.squares[pixel_to_array(mx,my)] = None
+                        board.squares[arr_pos] = None
 
         draw(screen, board, m_piece, mx, my)
         keys = pg.key.get_pressed()

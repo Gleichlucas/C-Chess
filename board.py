@@ -63,10 +63,6 @@ class Board:
                 break
             y -= 1
 
-
-
-
-
     def vertical_move(self, p, x):
         y = x + 8
         while (y <= 63):
@@ -122,7 +118,8 @@ class Board:
             if self.squares[tmp] == None:
                 tmp += dir
                 continue
-            if isinstance(self.squares[tmp], Rook) or isinstance(self.squares[tmp], Queen) and self.squares[tmp].colour != king_colour:
+            if (isinstance(self.squares[tmp], Rook) or isinstance(self.squares[tmp], Queen)) and self.squares[tmp].colour != king_colour:
+                print("king colour is " + str(king_colour) +" and colour of piece " + str(self.squares[tmp].colour))
                 pinned = True
                 break
             else:
@@ -144,6 +141,7 @@ class Board:
                 tmp += dir
                 continue
             if (isinstance(self.squares[tmp], Rook) or isinstance(self.squares[tmp], Queen)) and self.squares[tmp].colour != king_colour:
+                print("king colour is " + str(king_colour) +" and colour of piece " + str(self.squares[tmp].colour))
                 pinned = True
                 break
             else:
@@ -173,7 +171,7 @@ class Board:
         while(tmp % 8 >= 0):
 
             if self.squares[tmp] == None:
-                tmp -=1
+                tmp -= 1
                 continue
             if self.squares[tmp].colour == p.colour:
                 self.check_for_pinning_piece_h(p.colour,tmp, -1)
@@ -194,7 +192,6 @@ class Board:
                 break
         tmp = pos - 8
         while(tmp // 8 >= 0):
-
             if self.squares[tmp] == None:
                 tmp -= 8
                 continue
@@ -205,7 +202,6 @@ class Board:
                 break
 
     def check_direction(self, p, pos, dir):
-
         # dir == 9: right-down, dir == -9 left-up, dir == 7 left-down, dir == -7 right-up
         # x and y are the translated position of the piece,
         x = pos % 8
@@ -287,7 +283,7 @@ class Board:
                 self.horizontal_move(p, x)
                 self.vertical_move(p,x)
             if isinstance(p, King):
-                self.king_moves(p,x)
+                p.move(x, self.squares)
                 self.check_horizontal_pin(p,x)
                 self.check_vertical_pin(p,x)
             x += 1
@@ -297,5 +293,5 @@ class Board:
             if self.squares[x] != None:
                 self.squares[x].legal_moves = []
         self.legal = []
-        for i in range(64):
+        for _ in range(64):
             self.legal.append(None)
