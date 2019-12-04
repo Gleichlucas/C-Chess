@@ -65,7 +65,9 @@ def main():
                         else:
                             board.WTurn = True
                         m_piece = board.squares[arr_pos]
+
                         m_piece.move(arr_pos, board.squares)
+                        board.squares[4].king_pin(4, board.squares)
                         for x in m_piece.legal_moves:
                             board.legal[x] = Legal()
                         board.squares[arr_pos] = None

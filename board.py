@@ -55,14 +55,14 @@ class Board:
                 tmp += dir
                 continue
             if (isinstance(self.squares[tmp], Rook) or isinstance(self.squares[tmp], Queen)) and self.squares[tmp].colour != king_colour:
-                print("king colour is " + str(king_colour) +" and colour of piece " + str(self.squares[tmp].colour))
+                #print("king colour is " + str(king_colour) +" and colour of piece " + str(self.squares[tmp].colour))
                 pinned = True
                 break
             else:
                 break
         if not pinned:
             return
-        print(str(type(self.squares[pos])) + " on "+ str(pos//8 +1)+ ","+str(pos%8 + 1) + " is horizontal pinned")
+        #print(str(type(self.squares[pos])) + " on "+ str(pos//8 +1)+ ","+str(pos%8 + 1) + " is horizontal pinned")
         self.squares[pos].legal_moves[:] = [x for x in self.squares[pos].legal_moves if x // 8 == pos // 8]
 
     def check_for_pinning_piece_v(self, king_colour, pos, dir):
@@ -77,7 +77,7 @@ class Board:
                 tmp += dir
                 continue
             if (isinstance(self.squares[tmp], Rook) or isinstance(self.squares[tmp], Queen)) and self.squares[tmp].colour != king_colour:
-                print("king colour is " + str(king_colour) +" and colour of piece " + str(self.squares[tmp].colour))
+                #print("king colour is " + str(king_colour) +" and colour of piece " + str(self.squares[tmp].colour))
                 pinned = True
                 break
             else:
@@ -85,8 +85,8 @@ class Board:
 
         if not pinned:
             return
-        print("king colour is " + str(king_colour))
-        print(str(type(self.squares[pos])) + " on "+ str(pos//8 +1)+ ","+str(pos%8 + 1) + " is vertical pinned")
+        #print("king colour is " + str(king_colour))
+        #print(str(type(self.squares[pos])) + " on "+ str(pos//8 +1)+ ","+str(pos%8 + 1) + " is vertical pinned")
         self.squares[pos].legal_moves[:] = [x for x in self.squares[pos].legal_moves if x % 8 == pos % 8]
 
 
